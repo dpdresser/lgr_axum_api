@@ -1,34 +1,65 @@
 use axum::{response::IntoResponse, Json};
+use serde_json::json;
 
 use crate::models::*;
 
 // ---- CRUD for Questions ----
 
 pub async fn create_question(Json(question): Json<Question>) -> impl IntoResponse {
-    todo!()
+    let question_detail = QuestionDetail {
+        question_uuid: uuid::Uuid::new_v4().to_string(),
+        title: question.title,
+        description: question.description,
+        created_at: chrono::Local::now().to_string(),
+    };
+
+    Json(json!(question_detail))
 }
 
 pub async fn read_questions() -> impl IntoResponse {
-    todo!()
+    let question_detail = QuestionDetail {
+        question_uuid: uuid::Uuid::new_v4().to_string(),
+        title: "Newly Created Question".to_string(),
+        description: "My Description".to_string(),
+        created_at: chrono::Local::now().to_string(),
+    };
+
+    Json(json!(
+        vec![question_detail]
+    ))
 }
 
-pub async fn delete_question(Json(question_uuid): Json<QuestionId>) {
-    todo!()
+pub async fn delete_question(Json(_question_uuid): Json<QuestionId>) {
+    ()
 }
 
 // ---- CRUD for Answers ----
 
-// TODO: Create a POST route to /answer which accepts an `Answer` and returns `AnswerDetails` as JSON.
-//      The handler function should be called `create_answer`.
-//
-//      hint: this function should look very similar to the create_question function above
+pub async fn create_answer(Json(answer): Json<Answer>) -> impl IntoResponse {
+    let answer_detail = AnswerDetail {
+        answer_uuid: uuid::Uuid::new_v4().to_string(),
+        question_uuid: answer.question_uuid,
+        content: answer.content,
+        created_at: chrono::Local::now().to_string(),
+    };
 
-// TODO: Create a GET route to /answers which accepts a `QuestionId` and returns a vector of `AnswerDetail` as JSON.
-//      The handler function should be called `read_answers`.
-//
-//      hint: this function should look very similar to the read_questions function above
+    Json(json!(answer_detail))
+}
 
-// TODO: Create a DELETE route to /answer which accepts an `AnswerId` and does not return anything.
-//      The handler function should be called `delete_answer`.
-//
-//      hint: this function should look very similar to the delete_question function above
+pub async fn read_answers(Json(_question_uuid): Json<QuestionId>) -> impl IntoResponse {
+    let answer_detail = AnswerDetail {
+        answer_uuid: uuid::Uuid::new_v4().to_string(),
+        question_uuid: _question_uuid.question_uuid,
+        content: "test question".to_string(),
+        created_at: chrono::Local::now().to_string(),
+    };
+
+    Json(json!(
+        vec![answer_detail]
+    ))
+}
+
+
+pub async fn delete_answer(Json(_answer_id): Json<AnswerId>) -> impl IntoResponse {
+    ()
+}

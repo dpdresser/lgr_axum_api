@@ -29,6 +29,7 @@ pub struct Answer {
 pub struct AnswerDetail {
     pub answer_uuid: String,
     pub question_uuid: String,
+    pub content: String,
     pub created_at: String,
 }
           

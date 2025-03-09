@@ -2,7 +2,7 @@ use axum::{
     routing::{delete, get, post},
     Router,
 };
-use std::net::SocketAddr;
+// use std::net::SocketAddr;
 
 mod handlers;
 mod models;
