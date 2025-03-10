@@ -1,7 +1,10 @@
 use axum::{
-    routing::{delete, get, post},
     Router,
+    routing::{delete, get, post},
 };
+#[macro_use]
+extern crate log;
+use sqlx::postgres::PgPoolOptions;
 // use std::net::SocketAddr;
 
 mod handlers;
@@ -10,21 +13,24 @@ use handlers::*;
 
 #[tokio::main]
 async fn main() {
-    // TODO: initialize pretty_env_logger
-    // TODO: initialize dotenvy
+    pretty_env_logger::init();
+    dotenvy::dotenv().unwrap();
 
-    // Create new PgPoolOptions instance with a maximum of 5 connections
-    // Use dotenv to get the databse url
-    // Use unwrap / expect instead of handling errors. If an error occurs
-    // at this stage the server should be terminated
-    // let pool = todo!();
+    let db_url = dotenvy::var("DATABASE_URL").unwrap();
+    let db = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&db_url)
+        .await
+        .expect("Failed to connect to DATABASE_URL");
 
-    // Using slqx, exeute a SQL query that selects all questions from the
-    // questions table, use unwrap / expect
-    // let recs = todo!();
+    let recs = sqlx::query("SELECT * FROM questions")
+        .fetch_all(&db)
+        .await
+        .unwrap();
 
     info!("********* Question Records *********");
-    // TODO: log recs with debug formation using the info! macro
+
+    info!("{:?}", recs);
 
     let app = Router::new()
         .route("/question", post(create_question))

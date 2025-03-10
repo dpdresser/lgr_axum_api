@@ -32,7 +32,7 @@ pub struct AnswerDetail {
     pub content: String,
     pub created_at: String,
 }
-          
+
 #[derive(Serialize, Deserialize)]
 pub struct AnswerId {
     pub answer_uuid: String,

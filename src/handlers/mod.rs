@@ -1,4 +1,4 @@
-use axum::{response::IntoResponse, Json};
+use axum::{Json, response::IntoResponse};
 use serde_json::json;
 
 use crate::models::*;
@@ -24,14 +24,10 @@ pub async fn read_questions() -> impl IntoResponse {
         created_at: chrono::Local::now().to_string(),
     };
 
-    Json(json!(
-        vec![question_detail]
-    ))
+    Json(json!(vec![question_detail]))
 }
 
-pub async fn delete_question(Json(_question_uuid): Json<QuestionId>) {
-    ()
-}
+pub async fn delete_question(Json(_question_uuid): Json<QuestionId>) {}
 
 // ---- CRUD for Answers ----
 
@@ -54,12 +50,7 @@ pub async fn read_answers(Json(_question_uuid): Json<QuestionId>) -> impl IntoRe
         created_at: chrono::Local::now().to_string(),
     };
 
-    Json(json!(
-        vec![answer_detail]
-    ))
+    Json(json!(vec![answer_detail]))
 }
 
-
-pub async fn delete_answer(Json(_answer_id): Json<AnswerId>) -> impl IntoResponse {
-    ()
-}
+pub async fn delete_answer(Json(_answer_id): Json<AnswerId>) -> impl IntoResponse {}
