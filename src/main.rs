@@ -10,6 +10,22 @@ use handlers::*;
 
 #[tokio::main]
 async fn main() {
+    // TODO: initialize pretty_env_logger
+    // TODO: initialize dotenvy
+
+    // Create new PgPoolOptions instance with a maximum of 5 connections
+    // Use dotenv to get the databse url
+    // Use unwrap / expect instead of handling errors. If an error occurs
+    // at this stage the server should be terminated
+    // let pool = todo!();
+
+    // Using slqx, exeute a SQL query that selects all questions from the
+    // questions table, use unwrap / expect
+    // let recs = todo!();
+
+    info!("********* Question Records *********");
+    // TODO: log recs with debug formation using the info! macro
+
     let app = Router::new()
         .route("/question", post(create_question))
         .route("/questions", get(read_questions))
