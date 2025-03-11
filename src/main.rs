@@ -5,7 +5,6 @@ use axum::{
 #[macro_use]
 extern crate log;
 use sqlx::postgres::PgPoolOptions;
-// use std::net::SocketAddr;
 
 mod handlers;
 use handlers::*;

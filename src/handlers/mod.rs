@@ -3,6 +3,8 @@ use serde_json::json;
 
 use crate::models::*;
 
+mod handlers_inner;
+
 // ---- CRUD for Questions ----
 
 pub async fn create_question(Json(question): Json<Question>) -> impl IntoResponse {
