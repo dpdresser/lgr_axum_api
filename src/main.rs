@@ -8,29 +8,24 @@ use sqlx::postgres::PgPoolOptions;
 // use std::net::SocketAddr;
 
 mod handlers;
-mod models;
 use handlers::*;
+mod models;
+mod persistance;
 
 #[tokio::main]
 async fn main() {
     pretty_env_logger::init();
     dotenvy::dotenv().unwrap();
+    info!("Connecting to PostgreSQL DB");
 
     let db_url = dotenvy::var("DATABASE_URL").unwrap();
-    let db = PgPoolOptions::new()
+    let _db = PgPoolOptions::new()
         .max_connections(5)
         .connect(&db_url)
         .await
         .expect("Failed to connect to DATABASE_URL");
 
-    let recs = sqlx::query("SELECT * FROM questions")
-        .fetch_all(&db)
-        .await
-        .unwrap();
-
-    info!("********* Question Records *********");
-
-    info!("{:?}", recs);
+    info!("Connection successful");
 
     let app = Router::new()
         .route("/question", post(create_question))
@@ -43,6 +38,8 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
         .await
         .unwrap();
+
+    info!("Server running at 127.0.0.1:8000");
 
     axum::serve(listener, app).await.unwrap();
 }
