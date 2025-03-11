@@ -1,58 +1,71 @@
-use axum::{Json, response::IntoResponse};
-use serde_json::json;
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 
-use crate::models::*;
+use crate::{AppState, models::*};
 
 mod handlers_inner;
 
+impl IntoResponse for handlers_inner::HandlerError {
+    fn into_response(self) -> axum::response::Response {
+        match self {
+            handlers_inner::HandlerError::BadRequest(msg) => {
+                (StatusCode::BAD_REQUEST, msg).into_response()
+            }
+            handlers_inner::HandlerError::InternalError(msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, msg).into_response()
+            }
+        }
+    }
+}
+
 // ---- CRUD for Questions ----
 
-pub async fn create_question(Json(question): Json<Question>) -> impl IntoResponse {
-    let question_detail = QuestionDetail {
-        question_uuid: uuid::Uuid::new_v4().to_string(),
-        title: question.title,
-        description: question.description,
-        created_at: chrono::Local::now().to_string(),
-    };
-
-    Json(json!(question_detail))
+pub async fn create_question(
+    State(AppState { questions_dao, .. }): State<AppState>,
+    Json(question): Json<Question>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    handlers_inner::create_question(question, questions_dao.as_ref())
+        .await
+        .map(Json)
 }
 
-pub async fn read_questions() -> impl IntoResponse {
-    let question_detail = QuestionDetail {
-        question_uuid: uuid::Uuid::new_v4().to_string(),
-        title: "Newly Created Question".to_string(),
-        description: "My Description".to_string(),
-        created_at: chrono::Local::now().to_string(),
-    };
-
-    Json(json!(vec![question_detail]))
+pub async fn read_questions(
+    State(AppState { questions_dao, .. }): State<AppState>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    handlers_inner::read_questions(questions_dao.as_ref())
+        .await
+        .map(Json)
 }
 
-pub async fn delete_question(Json(_question_uuid): Json<QuestionId>) {}
+pub async fn delete_question(
+    State(AppState { questions_dao, .. }): State<AppState>,
+    Json(question_uuid): Json<QuestionId>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    handlers_inner::delete_question(question_uuid, questions_dao.as_ref()).await
+}
 
 // ---- CRUD for Answers ----
 
-pub async fn create_answer(Json(answer): Json<Answer>) -> impl IntoResponse {
-    let answer_detail = AnswerDetail {
-        answer_uuid: uuid::Uuid::new_v4().to_string(),
-        question_uuid: answer.question_uuid,
-        content: answer.content,
-        created_at: chrono::Local::now().to_string(),
-    };
-
-    Json(json!(answer_detail))
+pub async fn create_answer(
+    State(AppState { answers_dao, .. }): State<AppState>,
+    Json(answer): Json<Answer>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    handlers_inner::create_answer(answer, answers_dao.as_ref())
+        .await
+        .map(Json)
 }
 
-pub async fn read_answers(Json(_question_uuid): Json<QuestionId>) -> impl IntoResponse {
-    let answer_detail = AnswerDetail {
-        answer_uuid: uuid::Uuid::new_v4().to_string(),
-        question_uuid: _question_uuid.question_uuid,
-        content: "test question".to_string(),
-        created_at: chrono::Local::now().to_string(),
-    };
-
-    Json(json!(vec![answer_detail]))
+pub async fn read_answers(
+    State(AppState { answers_dao, .. }): State<AppState>,
+    Json(question_uuid): Json<QuestionId>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    handlers_inner::read_answers(question_uuid, answers_dao.as_ref())
+        .await
+        .map(Json)
 }
 
-pub async fn delete_answer(Json(_answer_id): Json<AnswerId>) -> impl IntoResponse {}
+pub async fn delete_answer(
+    State(AppState { answers_dao, .. }): State<AppState>,
+    Json(answer_uuid): Json<AnswerId>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    handlers_inner::delete_answer(answer_uuid, answers_dao.as_ref()).await
+}
